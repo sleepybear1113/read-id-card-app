@@ -4,3 +4,7 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 /.idea
+/.vs
+*- Backup.csproj
+*.user
+/ReadIdCardApp/Properties

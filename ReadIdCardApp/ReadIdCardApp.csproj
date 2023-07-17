@@ -5,6 +5,19 @@
         <TargetFramework>net6.0-windows</TargetFramework>
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     </PropertyGroup>
 
+    <ItemGroup>
+        <Reference Include="MahApps.Metro">
+            <HintPath>.\bin\MahApps.Metro.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Dapper" Version="2.0.143" />
+      <PackageReference Include="Extended.Wpf.Toolkit" Version="4.5.0" />
+      <PackageReference Include="NPOI" Version="2.6.1" />
+      <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
+    </ItemGroup>
 </Project>

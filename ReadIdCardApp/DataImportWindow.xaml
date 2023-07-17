@@ -1,0 +1,23 @@
+﻿<Window x:Class="ReadIdCardApp.DataImportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:ReadIdCardApp"
+        mc:Ignorable="d"
+        Title="批量导入" Height="400" Width="400"
+        KeyDown="KeyDownAction">
+    <Grid>
+        <ComboBox x:Name="ComboBoxScheduleList" DisplayMemberPath="IdName" FontSize="14" HorizontalAlignment="Left" Margin="96,10,0,0" VerticalAlignment="Top" Width="162"/>
+        <Button Content="Excel导入(追加)" HorizontalAlignment="Left" Height="30" Margin="21,43,0,0" VerticalAlignment="Top" Width="113" Click="ImportAppend"/>
+        <Button Content="Excel导入(清空)" HorizontalAlignment="Left" Height="30" Margin="139,43,0,0" VerticalAlignment="Top" Width="112" Click="ImportClear"/>
+        <Button Content="下载Excel导入模板" HorizontalAlignment="Left" Height="30" Margin="258,43,0,0" VerticalAlignment="Top" Width="112"/>
+        <Label Content="导入的场次" HorizontalAlignment="Left" Margin="21,11,0,0" VerticalAlignment="Top"/>
+        <TextBox HorizontalAlignment="Left" Margin="23,78,0,0" TextWrapping="Wrap"
+                 Text="导入说明：&#xD;&#xA;1. 追加模式：Excel导入后，不会清空原有的数据，将新数据追加到旧数据后，若相同身份证的，那么新数据覆盖旧数据。&#xA;2. 清空模式：先读取Excel中的数据，如果有数据，那么将新数据加入到这个场次，这个场次下的旧数据删除。如果没有可以导入的数据那么不影响。&#xA;3. Excel 模板中也可以指定场次导入人员信息。若没有勾选&quot;使用Excel中场次&quot;，那么所有人员都会导入到下拉框的场次中（即使Excel中设置了场次）。如果勾选了，那么会按照场次的不同，将人员导入到对应的场次中。&#xA;4. 导入模板中的场次id，需要填写对应的场次id（数字格式，如9001）。如果已经存在了场次，那么只需要填写场次id，场次名称可以不填写。如果场次不存在，需要新增，那么场次id请填写为0，然后填入场次名称，程序读取Excel后会自动新建场次并将人员添加到这个场次中。&#xD;&#xA;5. 人员信息上，除了身份证号为必填项，其余都为选填，可留空。Col1-3列为冗余列，可以存放自己想要的字段的数据，并会原样导出。"
+                 VerticalAlignment="Top" Width="349" IsEnabled="False" />
+        <CheckBox x:Name="CheckBoxUseExcelScheduleId" Content="使用Excel中场次" HorizontalAlignment="Left" VerticalAlignment="Top" Click="Checked" Margin="263,7,0,0"/>
+        <CheckBox x:Name="CheckBoxOnlyImportValidIdCard" Content="仅导入合法身份证号" HorizontalAlignment="Left" VerticalAlignment="Top" Click="Checked" Margin="263,24,0,0"/>
+
+    </Grid>
+</Window>

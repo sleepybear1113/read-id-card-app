@@ -2,9 +2,9 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace ReadIdCard.id_card;
+namespace ReadIdCardApp.id_card;
 
-public class ReadIdCard {
+public static class ReadIdCard {
     private static int[] _portList = new[]
         { 0, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1012, 1013, 1014, 1015, 1016, 1, 2 };
 
@@ -34,7 +34,7 @@ public class ReadIdCard {
         return openPort;
     }
 
-    public static Person Read() {
+    public static Person Read(bool readPic) {
         int EdziIfOpen = 1;
 
         Person person = new Person();
@@ -73,8 +73,8 @@ public class ReadIdCard {
         person.NationCode = Encoding.Unicode.GetString(infoBytes, 32, 4).Trim();
 
         string str4 = Encoding.Unicode.GetString(infoBytes, 36, 16).Trim();
-        person.Birth = Convert.ToDateTime(str4.Substring(0, 4) + "年" + 
-                                          str4.Substring(4, 2) + "月" + 
+        person.Birth = Convert.ToDateTime(str4.Substring(0, 4) + "年" +
+                                          str4.Substring(4, 2) + "月" +
                                           str4.Substring(6) + "日");
 
         person.Address = Encoding.Unicode.GetString(infoBytes, 52, 70).Trim();
@@ -94,43 +94,55 @@ public class ReadIdCard {
                                                 str6.Substring(6, 2) + "日");
         }
 
-        // 读取 wlt 的 bytes 写本地 wlt 文件，转为 bmp 文件流
-        var wltPathPrefix = $"wlt-{person.Id}";
-        var wltPath = wltPathPrefix + ".wlt";
-        var bmpPath = wltPathPrefix + ".bmp";
-        File.WriteAllBytes(wltPath, GetFirstBytes(picBytes, picLength));
-        var wltFile = new FileInfo(wltPath);
-        if (wltFile.Exists) {
-            switch (ReadIdCardInterface.GetBmp(wltPath, 2)) {
-                case -6:
-                    person.Msg = "读卡失败！";
-                    break;
-                case -4:
-                    person.Msg = "加密相片文件格式错误！";
-                    break;
-                case -3:
-                    person.Msg = "加密相片文件打开错误！";
-                    break;
-                case -2:
-                    person.Msg = "加密相片文件后缀错误！";
-                    break;
-                case -1:
-                    person.Msg = "相片解码错误！";
-                    break;
+        if (readPic) {
+            // 读取 wlt 的 bytes 写本地 wlt 文件，转为 bmp 文件流
+            var wltPathPrefix = $"wlt-{person.Id}";
+            var wltPath = wltPathPrefix + ".wlt";
+            var bmpPath = wltPathPrefix + ".bmp";
+            File.WriteAllBytes(wltPath, GetFirstBytes(picBytes, picLength));
+            var wltFile = new FileInfo(wltPath);
+            if (wltFile.Exists) {
+                switch (ReadIdCardInterface.GetBmp(wltPath, 2)) {
+                    case -6:
+                        person.Msg = "读卡失败！";
+                        break;
+                    case -4:
+                        person.Msg = "加密相片文件格式错误！";
+                        break;
+                    case -3:
+                        person.Msg = "加密相片文件打开错误！";
+                        break;
+                    case -2:
+                        person.Msg = "加密相片文件后缀错误！";
+                        break;
+                    case -1:
+                        person.Msg = "相片解码错误！";
+                        break;
+                }
+
+                wltFile.Delete();
+            } else {
+                person.Msg = "未找到加密相片文件";
             }
 
-            wltFile.Delete();
-        } else {
-            person.Msg = "未找到加密相片文件";
-        }
-
-        var bmpFile = new FileInfo(bmpPath);
-        if (bmpFile.Exists) {
-            person.PictureBytes = File.ReadAllBytes(bmpPath);
-            bmpFile.Delete();
+            var bmpFile = new FileInfo(bmpPath);
+            if (bmpFile.Exists) {
+                person.PictureBytes = File.ReadAllBytes(bmpPath);
+                bmpFile.Delete();
+            } else {
+                person.PictureBytes = null;
+            }
         }
 
         return person;
+    }
+
+    public static Person ReadWithException(bool readPic) {
+        try {
+            return Read(readPic);
+        } catch (Exception e) {
+            return new Person() { Msg = e.Message };
+        }
     }
 
     private static byte[] GetFirstBytes(byte[] bytes, int length) {

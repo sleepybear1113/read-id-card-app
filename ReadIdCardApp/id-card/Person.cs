@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ReadIdCard.id_card;
+namespace ReadIdCardApp.id_card;
 
 public class Person {
     private bool success = false;
@@ -19,7 +19,6 @@ public class Person {
     private DateTime endTime;
     private string validCode;
     private string validStr;
-    private byte[] pictureBytes;
 
     private string msg = "";
 
@@ -35,7 +34,17 @@ public class Person {
 
     public string SexCode {
         get => sexCode;
-        set => sexCode = value ?? throw new ArgumentNullException(nameof(value));
+        set {
+            sexCode = value;
+            switch (value) {
+                case "1":
+                    sexStr = "男";
+                    break;
+                case "2":
+                    sexStr = "女";
+                    break;
+            }
+        }
     }
 
     public string SexStr {
@@ -50,7 +59,10 @@ public class Person {
 
     public string NationCode {
         get => nationCode;
-        set => nationCode = value ?? throw new ArgumentNullException(nameof(value));
+        set {
+            nationCode = value;
+            nationStr = NationMap[value];
+        }
     }
 
     public string NationStr {
@@ -61,6 +73,10 @@ public class Person {
     public DateTime Birth {
         get => birth;
         set => birth = value;
+    }
+
+    public string GetBirthStr() {
+        return GetTimeStr(birth);
     }
 
     public string Address {
@@ -80,7 +96,32 @@ public class Person {
 
     public DateTime EndTime {
         get => endTime;
-        set => endTime = value;
+        set {
+            endTime = value;
+            if (endTime == DateTime.MaxValue) {
+                validCode = "3";
+                validStr = "长期";
+            } else if (beginTime != DateTime.MinValue) {
+                switch (value.AddDays(1.0).Year - beginTime.Year) {
+                    case 5:
+                        validCode = "4";
+                        validStr = "5年";
+                        break;
+                    case 10:
+                        validCode = "1";
+                        validStr = "10年";
+                        break;
+                    case 20:
+                        validCode = "2";
+                        validStr = "20年";
+                        break;
+                }
+            }
+        }
+    }
+
+    public string GetValidTimeStr() {
+        return GetTimeStr(beginTime) + " - " + GetTimeStr(endTime);
     }
 
     public string ValidCode {
@@ -93,10 +134,7 @@ public class Person {
         set => validStr = value ?? throw new ArgumentNullException(nameof(value));
     }
 
-    public byte[] PictureBytes {
-        get => pictureBytes;
-        set => pictureBytes = value ?? throw new ArgumentNullException(nameof(value));
-    }
+    public byte[]? PictureBytes { get; set; }
 
     public string Msg {
         get => msg;
@@ -163,4 +201,8 @@ public class Person {
         { "57", "其它" },
         { "98", "外国人入籍" },
     };
+
+    public static string GetTimeStr(DateTime dateTime) {
+        return $"{dateTime.Year}年{dateTime.Month}月{dateTime.Day}日";
+    }
 }
